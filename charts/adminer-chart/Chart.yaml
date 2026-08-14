@@ -1,0 +1,23 @@
+apiVersion: v2
+name: adminer-helm
+version: "0.1.0"
+kubeVersion: ">= 1.21"
+description: My first chart
+type: application
+keywords:
+  - adminer
+  - dariush
+  - first
+  - chart
+  - helm
+home: https://github.com/devDariush/adminer-chart
+# sources: []
+# dependencies: []
+maintainers:
+  - name: devDariush
+    email: hi@dariush.dev
+    url: https://dariush.dev
+icon: https://avatars.githubusercontent.com/u/118191394?v=4
+# appVersion:
+deprecated: false
+# annotations: []

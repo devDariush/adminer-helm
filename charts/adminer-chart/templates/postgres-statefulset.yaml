@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+  labels:
+    {{- include "adminer-postgres.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.postgres.replication.enabled }}
+  replicas: {{ .Values.postgres.replication.replicas }}
+  {{- else }}
+  replicas: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "adminer-postgres.labels" . | nindent 6 }}
+  serviceName: {{ .Values.postgres.serviceName | default "postgres" }}
+  template:
+    metadata:
+      labels:
+        {{- include "adminer-postgres.labels" . | nindent 8 }}
+    spec:
+      volumes:
+      - name: scripts
+        configMap:
+          name: postgres-init
+          defaultMode: 0755
+      initContainers:
+        - name: clone-replica
+          image: postgres:18
+          command: ["bash", "/scripts/clone-if-replica.sh"]
+          env:
+            - name: PGDATA
+              value: /var/lib/postgresql/data
+            - name: REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+                  key: replication-password
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql
+            - name: scripts
+              mountPath: /scripts
+      containers:
+        - name: postgres
+          image: postgres:18
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql
+            - name: scripts
+              mountPath: /docker-entrypoint-initdb.d
+          resources:
+            requests:
+              cpu: {{ .Values.postgres.resources.minimumCPU | default "100m" }}
+              memory: {{ .Values.postgres.resources.minimumRAM | default "100Mi" }}
+            limits:
+              cpu: {{ .Values.postgres.resources.maximumCPU | default "1000m" }}
+              memory: {{ .Values.postgres.resources.maximumRAM | default "1000Mi" }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.postgres.port | default 5432 }}
+            initialDelaySeconds: 10
+          livenessProbe:
+            exec:
+              command: ["pg_isready"]
+            periodSeconds: 5
+          ports:
+            - name: http
+              containerPort: {{ .Values.postgres.port | default 5432 }}
+              protocol: TCP
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+            - name: POSTGRES_PORT
+              value: {{ .Values.postgres.port | default 5432 | quote }}
+            - name: REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+                  key: replication-password
+            - name: PGDATA
+              value: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          {{- toYaml .Values.postgres.storage.accessModes | nindent 10 }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.storage.capacity | default "1G" }}
+  persistentVolumeClaimRetentionPolicy:
+    whenDeleted: {{ .Values.postgres.storage.whenDeleted }}
+    whenScaled: {{ .Values.postgres.storage.whenScaled }}

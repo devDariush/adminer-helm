@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.adminer.appName }}
+  labels:
+    {{- include "adminer.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.adminer.replicas | default 1 }}
+  selector:
+    matchLabels:
+      {{- include "adminer.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "adminer.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: adminer
+          image: adminer
+          env:
+            - name: ADMINER_DEFAULT_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  key: default-server
+                  name: {{ .Values.adminer.appName }}
+          resources:
+            requests:
+              cpu: {{ .Values.adminer.resources.minimumCPU | default "10m" }}
+              memory: {{ .Values.adminer.resources.minimumRAM | default "10Mi" }}
+            limits:
+              cpu: {{ .Values.adminer.resources.maximumCPU | default "100m" }}
+              memory: {{ .Values.adminer.resources.maximumRAM | default "100Mi" }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080

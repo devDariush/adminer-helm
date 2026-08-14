@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  labels:
+    {{- include "adminer-postgres.labels" . | nindent 4 }}
+data:
+  setup-replication.sh: |
+    #!/bin/bash
+    set -e
+    psql -U postgres -c "CREATE ROLE replicator WITH REPLICATION LOGIN PASSWORD '${REPLICATION_PASSWORD}';"
+    echo "host replication replicator 0.0.0.0/0 md5" >> "$PGDATA/pg_hba.conf"
+
+  clone-if-replica.sh: |
+    #!/bin/bash
+    set -e
+    MASTER_POD_NAME={{ .Values.postgres.appName }}-0
+    SERVICE_NAME={{ .Values.postgres.serviceName }}
+    if [ "$HOSTNAME" = "$MASTER_POD_NAME" ]; then
+      echo "I'm primary, skipping clone"
+      exit 0
+    fi
+    if [ -s "$PGDATA/PG_VERSION" ]; then
+      echo "Data already exists, skipping clone"
+      exit 0
+    fi
+    until pg_isready -h $MASTER_POD_NAME.$SERVICE_NAME -p 5432; do
+      echo "waiting for primary..."
+      sleep 2
+    done
+    PGPASSWORD=$REPLICATION_PASSWORD pg_basebackup \
+      -h $MASTER_POD_NAME.$SERVICE_NAME -D "$PGDATA" -U replicator -Fp -Xs -R -v

@@ -1,0 +1,73 @@
+# Adminer Config
+adminer:
+
+  # Port
+  port: 8080
+
+  # App Name
+  appName: adminer
+
+  # Replicas (scale up or down)
+  replicas: 1
+
+  # Misc
+
+  # Resources
+  resources:
+    minimumCPU:
+    maximumCPU:
+    minimumRAM:
+    maximumRAM:
+
+  # Label Name (for app.kubernetes.io/name), make sure this label doesn't collide with other resources in your namespace
+  labelName: adminer
+
+  # Service extra spec (override default config, e.g. use LoadBalancer instead of ClusterIP)
+  service:
+    extraSpec:
+
+# Postgres Config
+postgres:
+
+  # Port
+  port: 5432
+
+  # App Name
+  appName: adminer-postgres
+
+  # Replication Settings
+  replication:
+    # Replication Enabled? (true: use replicas value below; false: set replicas to 1)
+    enabled: true
+    # Number of Replicas (only applied if enabled is true)
+    replicas: 3
+
+  # Password (for postgres user)
+  password: 123polizei
+  # Replication Password (for more than one replica)
+  replicationPassword: peoplewawawa
+
+  # Misc
+
+  # Service Name (for: <pod-name>.<serviceName>.default.svc.cluster.local)
+  serviceName: adminer-postgres
+  # Label Name (for app.kubernetes.io/name), make sure this label doesn't collide with other resources in your namespace
+  labelName: postgres
+
+  # Resources
+  resources:
+    minimumCPU:
+    maximumCPU:
+    minimumRAM:
+    maximumRAM:
+
+  # Options for PVCs
+  storage:
+    # How much storage you need to claim (e.g. 1G for 1 Gigabyte or 1Gi for 1 Gibibyte)
+    capacity: 1G
+    # What should be the tolerated access modes for this PVC (depends on your CSI driver)
+    accessModes: [ReadWriteOnce]
+    # What happens when you scale down replicas (e.g. to 0)
+    whenScaled: Delete
+    # What happens when you delete the entire StatefulSet (≠ scaling to 0 replicas)
+    whenDeleted: Retain

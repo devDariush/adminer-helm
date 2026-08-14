@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.adminer.appName }}
+spec:
+  selector:
+    {{- include "adminer.labels" . | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.adminer.port }}
+  {{/* Set additional specs: */}}
+  {{- with .Values.adminer.service.extraSpec }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
