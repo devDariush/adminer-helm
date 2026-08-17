@@ -1,0 +1,37 @@
+suite: adminer service
+templates:
+  - charts/adminer-chart/templates/adminer-svc.yaml
+tests:
+  - it: should have the right service name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: adminer
+  - it: should have the right label selector
+    asserts:
+      - isSubset:
+          path: spec.selector
+          content:
+            app.kubernetes.io/name: adminer
+            app.kubernetes.io/component: frontend
+  - it: should use the right port
+    asserts:
+      - equal:
+          path: spec.ports[0]
+          value:
+            name: http
+            port: 8080
+  - it: should use NodePort instead of default ClusterIP
+    values:
+      - values/adminer-svc-nodeport.yaml
+    asserts:
+      - equal:
+          path: spec.type
+          value: NodePort
+  - it: should use LoadBalancer instead of default ClusterIP
+    values:
+      - values/adminer-svc-loadbalancer.yaml
+    asserts:
+      - equal:
+          path: spec.type
+          value: LoadBalancer

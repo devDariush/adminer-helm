@@ -1,0 +1,21 @@
+suite: postgres configmap
+templates:
+  - charts/postgres-chart/templates/postgres-cm.yaml
+tests:
+  - it: should have the right labels
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: postgres
+            app.kubernetes.io/component: "database"
+  - it: should use the right app name
+    asserts:
+      - matchRegex:
+          path: data["clone-if-replica.sh"]
+          pattern: MASTER_POD_NAME=adminer-postgres-0
+  - it: should use the right service name
+    asserts:
+      - matchRegex:
+          path: data["clone-if-replica.sh"]
+          pattern: SERVICE_NAME=adminer-postgres

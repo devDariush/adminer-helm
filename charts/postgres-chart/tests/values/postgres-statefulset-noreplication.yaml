@@ -1,0 +1,3 @@
+postgres-chart:
+  replication:
+    enabled: false

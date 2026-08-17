@@ -1,0 +1,55 @@
+suite: adminer deployment
+templates:
+  - charts/adminer-chart/templates/adminer-deployment.yaml
+tests:
+  - it: should have the right name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: adminer
+  - it: should have the right labels
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: adminer
+            app.kubernetes.io/component: frontend
+      - isSubset:
+          path: spec.selector.matchLabels
+          content:
+            app.kubernetes.io/name: adminer
+            app.kubernetes.io/component: frontend
+      - isSubset:
+          path: spec.template.metadata.labels
+          content:
+            app.kubernetes.io/name: adminer
+            app.kubernetes.io/component: frontend
+  - it: should select the right ConfigMap
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.configMapKeyRef.name
+          value: adminer
+  - it: should have the right resources
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests
+          value:
+            cpu: 10m
+            memory: 10Mi
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits
+          value:
+            cpu: 100m
+            memory: 100Mi
+  - it: should have 1 replica
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+  - it: should have 3 replicas
+    values:
+      - values/adminer-deployment-3-replicas.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3

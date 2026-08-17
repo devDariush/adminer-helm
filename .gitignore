@@ -42,3 +42,4 @@ Temporary Items
 
 # Helm generations
 generated/
+__snapshot__

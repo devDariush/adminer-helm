@@ -1,0 +1,4 @@
+postgres-chart:
+  replication:
+    enabled: true
+    replicas: 3

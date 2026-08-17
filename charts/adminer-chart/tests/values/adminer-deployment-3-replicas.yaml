@@ -1,0 +1,2 @@
+adminer-chart:
+  replicas: 3

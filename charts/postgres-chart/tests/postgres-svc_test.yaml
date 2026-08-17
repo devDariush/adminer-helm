@@ -1,0 +1,28 @@
+suite: postgres service
+templates:
+  - charts/postgres-chart/templates/postgres-svc.yaml
+tests:
+  - it: should have the right service name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: adminer-postgres
+  - it: should select the right labels
+    asserts:
+      - isSubset:
+          path: spec.selector
+          content:
+            app.kubernetes.io/name: postgres
+            app.kubernetes.io/component: "database"
+  - it: should use the right port (default 5432)
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 5432
+  - it: should use the right port (custom port 8181)
+    values:
+      - values/postgres-port-8181.yaml
+    asserts:
+      - equal:
+          path: spec.ports[0].port
+          value: 8181

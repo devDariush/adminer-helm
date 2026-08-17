@@ -1,0 +1,112 @@
+suite: postgres statefulset
+templates:
+  - charts/postgres-chart/templates/postgres-statefulset.yaml
+tests:
+  - it: should have the right name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: adminer-postgres
+  - it: should use the right labels
+    asserts:
+      - isSubset:
+          path: metadata.labels
+          content:
+            app.kubernetes.io/name: postgres
+            app.kubernetes.io/component: "database"
+      - isSubset:
+          path: spec.template.metadata.labels
+          content:
+            app.kubernetes.io/name: postgres
+            app.kubernetes.io/component: "database"
+      - isSubset:
+          path: spec.selector.matchLabels
+          content:
+            app.kubernetes.io/name: postgres
+            app.kubernetes.io/component: "database"
+  - it: should have replication disabled (1 replica only)
+    values:
+      - values/postgres-statefulset-noreplication.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+  - it: should have 3 replicas
+    values:
+      - values/postgres-statefulset-3-replicas.yaml
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 3
+  - it: should use the correct service name
+    asserts:
+      - equal:
+          path: spec.serviceName
+          value: adminer-postgres
+  - it: should use the correct password secret
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].env[1].valueFrom.secretKeyRef.name
+          value: adminer-postgres
+      - equal:
+          path: spec.template.spec.containers[0].env[0].valueFrom.secretKeyRef.name
+          value: adminer-postgres
+      - equal:
+          path: spec.template.spec.containers[0].env[2].valueFrom.secretKeyRef.name
+          value: adminer-postgres
+  - it: should have the right resources
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].resources.requests
+          value:
+            cpu: 100m
+            memory: 100Mi
+      - equal:
+          path: spec.template.spec.containers[0].resources.limits
+          value:
+            cpu: 1000m
+            memory: 1000Mi
+      - equal:
+          path: spec.volumeClaimTemplates[0].spec.resources.requests.storage
+          value: 1G
+  - it: should use the correct accessMode for PVCs
+    values:
+      - values/postgres-statefulset-pvc-accessmodes.yaml
+    asserts:
+      - equal:
+          path: spec.volumeClaimTemplates[0].spec.accessModes
+          value:
+            - ReadWriteOnce
+            - ReadWriteMany
+  - it: should have the correct pvc retention policies
+    asserts:
+      - equal:
+          path: spec.persistentVolumeClaimRetentionPolicy.whenDeleted
+          value: Retain
+      - equal:
+          path: spec.persistentVolumeClaimRetentionPolicy.whenScaled
+          value: Delete
+  - it: should use the right port (default 5432)
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 5432
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 5432
+      - equal:
+          path: spec.template.spec.containers[0].env[1].value
+          value: "5432"
+  - it: should use the right port (custom port 8181)
+    values:
+      - values/postgres-port-8181.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.containers[0].readinessProbe.tcpSocket.port
+          value: 8181
+      - equal:
+          path: spec.template.spec.containers[0].ports[0].containerPort
+          value: 8181
+      - equal:
+          path: spec.template.spec.containers[0].env[1].value
+          value: "8181"

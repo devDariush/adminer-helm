@@ -1,0 +1,4 @@
+adminer-chart:
+  service:
+    extraSpec:
+      type: NodePort
