@@ -15,14 +15,14 @@ A Helm chart that deploys [Adminer](https://www.adminer.org/) alongside a Postgr
 ## Install
 
 ```bash
-helm install my-release ./charts/adminer-chart
+helm install my-release ./charts
 ```
 
 Then follow the instructions printed in the post-install NOTES to reach Adminer (e.g. via `kubectl port-forward`).
 
 ## Configuration
 
-See `charts/adminer-chart/values.yaml` for all configurable options (replicas, resources, storage, ports, labels, etc.). Notable ones:
+See `charts/values.yaml` for all configurable options (replicas, resources, storage, ports, labels, etc.). Notable ones:
 
 - `postgres.replication.enabled` / `postgres.replication.replicas` — toggle and size Postgres replication
 - `postgres.password` / `postgres.replicationPassword` — override these rather than committing real credentials
