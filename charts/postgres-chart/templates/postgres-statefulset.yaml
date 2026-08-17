@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+  name: {{ .Values.global.postgres.appName | default "adminer-postgres" }}
   labels:
-    {{- include "adminer-postgres.labels" . | nindent 4 }}
+    {{- include "postgres.labels" . | nindent 4 }}
 spec:
-  {{- if .Values.postgres.replication.enabled }}
-  replicas: {{ .Values.postgres.replication.replicas }}
+  {{- if .Values.replication.enabled }}
+  replicas: {{ .Values.replication.replicas }}
   {{- else }}
   replicas: 1
   {{- end }}
   selector:
     matchLabels:
-      {{- include "adminer-postgres.labels" . | nindent 6 }}
-  serviceName: {{ .Values.postgres.serviceName | default "postgres" }}
+      {{- include "postgres.labels" . | nindent 6 }}
+  serviceName: {{ .Values.global.postgres.serviceName | default "postgres" }}
   template:
     metadata:
       labels:
-        {{- include "adminer-postgres.labels" . | nindent 8 }}
+        {{- include "postgres.labels" . | nindent 8 }}
     spec:
       volumes:
       - name: scripts
@@ -34,7 +34,7 @@ spec:
             - name: REPLICATION_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+                  name: {{ .Values.global.postgres.appName | default "adminer-postgres" }}
                   key: replication-password
           volumeMounts:
             - name: postgres-data
@@ -51,14 +51,14 @@ spec:
               mountPath: /docker-entrypoint-initdb.d
           resources:
             requests:
-              cpu: {{ .Values.postgres.resources.minimumCPU | default "100m" }}
-              memory: {{ .Values.postgres.resources.minimumRAM | default "100Mi" }}
+              cpu: {{ .Values.resources.minimumCPU | default "100m" }}
+              memory: {{ .Values.resources.minimumRAM | default "100Mi" }}
             limits:
-              cpu: {{ .Values.postgres.resources.maximumCPU | default "1000m" }}
-              memory: {{ .Values.postgres.resources.maximumRAM | default "1000Mi" }}
+              cpu: {{ .Values.resources.maximumCPU | default "1000m" }}
+              memory: {{ .Values.resources.maximumRAM | default "1000Mi" }}
           readinessProbe:
             tcpSocket:
-              port: {{ .Values.postgres.port | default 5432 }}
+              port: {{ .Values.global.postgres.port | default 5432 }}
             initialDelaySeconds: 10
           livenessProbe:
             exec:
@@ -66,20 +66,20 @@ spec:
             periodSeconds: 5
           ports:
             - name: http
-              containerPort: {{ .Values.postgres.port | default 5432 }}
+              containerPort: {{ .Values.global.postgres.port | default 5432 }}
               protocol: TCP
           env:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: password
-                  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+                  name: {{ .Values.global.postgres.appName | default "adminer-postgres" }}
             - name: POSTGRES_PORT
-              value: {{ .Values.postgres.port | default 5432 | quote }}
+              value: {{ .Values.global.postgres.port | default 5432 | quote }}
             - name: REPLICATION_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.postgres.appName | default "adminer-postgres" }}
+                  name: {{ .Values.global.postgres.appName | default "adminer-postgres" }}
                   key: replication-password
             - name: PGDATA
               value: /var/lib/postgresql/data
@@ -88,10 +88,10 @@ spec:
         name: postgres-data
       spec:
         accessModes:
-          {{- toYaml .Values.postgres.storage.accessModes | nindent 10 }}
+          {{- toYaml .Values.storage.accessModes | nindent 10 }}
         resources:
           requests:
-            storage: {{ .Values.postgres.storage.capacity | default "1G" }}
+            storage: {{ .Values.storage.capacity | default "1G" }}
   persistentVolumeClaimRetentionPolicy:
-    whenDeleted: {{ .Values.postgres.storage.whenDeleted }}
-    whenScaled: {{ .Values.postgres.storage.whenScaled }}
+    whenDeleted: {{ .Values.storage.whenDeleted }}
+    whenScaled: {{ .Values.storage.whenScaled }}

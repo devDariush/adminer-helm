@@ -1,7 +1,7 @@
 apiVersion: v2
-name: adminer-chart
+name: postgres-chart
 version: "0.1.0"
 kubeVersion: ">= 1.21"
 description: Subchart for adminer-helm
 type: application
-# appVersion:
+appVersion: "18"

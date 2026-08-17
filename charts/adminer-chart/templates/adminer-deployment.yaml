@@ -1,11 +1,11 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.adminer.appName }}
+  name: {{ .Values.global.adminer.appName }}
   labels:
     {{- include "adminer.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.adminer.replicas | default 1 }}
+  replicas: {{ .Values.replicas | default 1 }}
   selector:
     matchLabels:
       {{- include "adminer.labels" . | nindent 6 }}
@@ -22,14 +22,14 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: default-server
-                  name: {{ .Values.adminer.appName }}
+                  name: {{ .Values.global.adminer.appName }}
           resources:
             requests:
-              cpu: {{ .Values.adminer.resources.minimumCPU | default "10m" }}
-              memory: {{ .Values.adminer.resources.minimumRAM | default "10Mi" }}
+              cpu: {{ .Values.resources.minimumCPU | default "10m" }}
+              memory: {{ .Values.resources.minimumRAM | default "10Mi" }}
             limits:
-              cpu: {{ .Values.adminer.resources.maximumCPU | default "100m" }}
-              memory: {{ .Values.adminer.resources.maximumRAM | default "100Mi" }}
+              cpu: {{ .Values.resources.maximumCPU | default "100m" }}
+              memory: {{ .Values.resources.maximumRAM | default "100Mi" }}
           readinessProbe:
             httpGet:
               path: /

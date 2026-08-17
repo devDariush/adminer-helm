@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: postgres-init
   labels:
-    {{- include "adminer-postgres.labels" . | nindent 4 }}
+    {{- include "postgres.labels" . | nindent 4 }}
 data:
   setup-replication.sh: |
     #!/bin/bash
@@ -14,8 +14,8 @@ data:
   clone-if-replica.sh: |
     #!/bin/bash
     set -e
-    MASTER_POD_NAME={{ .Values.postgres.appName }}-0
-    SERVICE_NAME={{ .Values.postgres.serviceName }}
+    MASTER_POD_NAME={{ .Values.global.postgres.appName }}-0
+    SERVICE_NAME={{ .Values.global.postgres.serviceName }}
     if [ "$HOSTNAME" = "$MASTER_POD_NAME" ]; then
       echo "I'm primary, skipping clone"
       exit 0

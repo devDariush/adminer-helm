@@ -1,0 +1,13 @@
+# Git
+.git/
+.gitignore
+# macOS
+.DS_Store
+# Backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+# Helm generations
+generated/

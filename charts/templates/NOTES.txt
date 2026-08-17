@@ -1,0 +1,12 @@
+Thx for installing {{ .Chart.Name }}! (°ç°)
+This is release {{ .Release.Name }}.
+
+Adminer should be up and running along with Postgres.
+
+Adminer should be accessible via {{ .Values.global.adminer.appName }}.{{ .Release.Namespace }}.svc.cluster.local.
+You can also do:
+$ kubectl port-forward svc/{{ .Values.global.adminer.appName }} 8080:8080
+to access Adminer on localhost:8080.
+
+Postgres should be accessible via {{ .Values.global.postgres.appName }}-0.{{ .Values.global.postgres.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local
+If you have multiple Postgres replicas, you can also access {{ .Values.global.postgres.appName }}-1, {{ .Values.global.postgres.appName }}-2 and so on but be aware those are read-only plus there is no automatic failover.

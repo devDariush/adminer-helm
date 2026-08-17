@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.adminer.appName }}
+  name: {{ .Values.global.adminer.appName }}
   labels:
     {{- include "adminer.labels" . | nindent 4 }}
 data:
-  default-server: {{ .Values.postgres.appName }}-0.{{ .Values.postgres.serviceName }}.default.svc.cluster.local
+  default-server: {{ .Values.global.postgres.appName }}-0.{{ .Values.global.postgres.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local
