@@ -1,9 +1,9 @@
 dependencies:
 - name: adminer-chart
   repository: file://adminer-chart
-  version: 0.1.0
+  version: 0.2.0
 - name: postgres-chart
   repository: file://postgres-chart
-  version: 0.1.0
-digest: sha256:52071313c5ac0afe7a173fd8de50d2c0d41dcc6c50489add762a0ccab5769ac1
-generated: "2026-08-17T09:50:56.771309+02:00"
+  version: 0.2.0
+digest: sha256:35ea07d2bbb18ed5dfdd1eba2e3ff56f74f6021a785b740ea2a0acceb497f174
+generated: "2026-08-18T13:14:00.559153+02:00"
