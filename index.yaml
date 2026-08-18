@@ -2,6 +2,35 @@ apiVersion: v1
 entries:
   adminer-helm:
   - apiVersion: v2
+    created: "2026-08-18T13:34:24.675960117Z"
+    dependencies:
+    - name: adminer-chart
+      repository: file://adminer-chart
+      version: 0.2.0
+    - name: postgres-chart
+      repository: file://postgres-chart
+      version: 0.2.0
+    description: My first chart
+    digest: 0bbb530299991f87b0736f1346e88f9cb59178f08983df136f5fa0a2fa8de7ca
+    home: https://github.com/devDariush/adminer-chart
+    icon: https://avatars.githubusercontent.com/u/118191394?v=4
+    keywords:
+    - adminer
+    - dariush
+    - first
+    - chart
+    - helm
+    kubeVersion: '>= 1.21'
+    maintainers:
+    - email: hi@dariush.dev
+      name: devDariush
+      url: https://dariush.dev
+    name: adminer-helm
+    type: application
+    urls:
+    - https://github.com/devDariush/adminer-helm/releases/download/adminer-helm-0.5.0/adminer-helm-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
     created: "2026-08-18T13:15:32.222957548Z"
     dependencies:
     - name: adminer-chart
@@ -59,4 +88,4 @@ entries:
     urls:
     - https://github.com/devDariush/adminer-helm/releases/download/adminer-helm-0.3.0/adminer-helm-0.3.0.tgz
     version: 0.3.0
-generated: "2026-08-18T13:15:32.222966044Z"
+generated: "2026-08-18T13:34:24.675970763Z"
