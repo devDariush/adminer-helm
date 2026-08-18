@@ -14,7 +14,13 @@ A Helm chart that deploys [Adminer](https://www.adminer.org/) alongside a Postgr
 
 ## Install
 
-Add the chart repo once, then install from it:
+Install directly from the OCI registry on GHCR:
+
+```bash
+helm install my-release oci://ghcr.io/devdariush/adminer-helm
+```
+
+Or add the chart repo once, then install from it:
 
 ```bash
 helm repo add adminer-helm https://adminer-helm.d5h.io
@@ -26,6 +32,12 @@ Alternatively, install straight from a local checkout of this repo:
 
 ```bash
 helm install my-release ./charts
+```
+
+You can also pull the chart archive directly:
+
+```bash
+helm pull oci://ghcr.io/devdariush/adminer-helm
 ```
 
 Then follow the instructions printed in the post-install NOTES to reach Adminer (e.g. via `kubectl port-forward`).
