@@ -50,9 +50,9 @@ postgres-chart:
     replicas: 3
 
   # Password (for postgres user)
-  password: 123polizei
+  password:
   # Replication Password (for more than one replica)
-  replicationPassword: peoplewawawa
+  replicationPassword:
 
   # Misc
 
