@@ -35,3 +35,49 @@ jobs:
         run: cd charts/ && helm dependency build && cd ..
       - name: Run tests
         run: bash test.sh
+
+  changes:
+    needs: [test]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    outputs:
+      version_changed: ${{ steps.check.outputs.version_changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+          fetch-depth: 3
+
+      - name: Check if chart version changed
+        id: check
+        run: |
+          prev=$(git show HEAD^:charts/Chart.yaml | yq '.version')
+          curr=$(yq '.version' charts/Chart.yaml)
+          if [ "$prev" != "$curr" ]; then
+            echo "version_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "version_changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  release:
+    needs: [test, changes]
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
+    permissions:
+      contents: write
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "hi@dariush.dev"
+      - name: Run Helm Releaser
+        uses: helm/chart-releaser-action@3e001cb8c68933439c7e721650f20a07a1a5c61e
+        with:
+          version: v1.7.9
+          charts_dir: charts
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
