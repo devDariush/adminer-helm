@@ -43,6 +43,8 @@ jobs:
       contents: read
     outputs:
       version_changed: ${{ steps.check.outputs.version_changed }}
+      current_version: ${{ steps.check.outputs.current }}
+      chart_name: ${{ steps.check.outputs.name }}
     steps:
       - name: Checkout
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -60,8 +62,12 @@ jobs:
           else
             echo "version_changed=false" >> "$GITHUB_OUTPUT"
           fi
+          echo "current=$curr" >> "$GITHUB_OUTPUT"
 
-  release:
+          name=$(yq '.name' charts/Chart.yaml)
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+  release-repo:
     needs: [test]
     #if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
     permissions:
@@ -82,3 +88,36 @@ jobs:
           charts_dir: .
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+  release-oci:
+    needs: [test, changes]
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+      - name: Install Helm
+        uses: Azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 #v5.0.1
+        with:
+          version: '4.2.0'
+      - name: Install dependencies
+        run: cd charts/ && helm dependency build && cd ..
+      - name: Package chart
+        run: helm package charts/ --version $VERSION
+        env:
+          VERSION: "${{ needs.changes.outputs.current_version }}"
+      - name: Login to GHCR
+        run: echo "$GH_TOKEN" | helm registry login -u "$GITHUB_ACTOR" --password-stdin ghcr.io
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN  }}"
+      - name: Convert owner to lowercase
+        run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+      - name: Push image to GHCR
+        run: helm push $NAME oci://ghcr.io/${{ env.OWNER_LC }}
+        env:
+          NAME: "${{ needs.changes.outputs.chart_name }}"
+          VERSION: "${{ needs.changes.outputs.current_version }}"
