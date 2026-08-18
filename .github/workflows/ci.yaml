@@ -117,7 +117,7 @@ jobs:
       - name: Convert owner to lowercase
         run: echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
       - name: Push image to GHCR
-        run: helm push $NAME oci://ghcr.io/${{ env.OWNER_LC }}
+        run: helm push $NAME-$VERSION.tgz oci://ghcr.io/${{ env.OWNER_LC }}
         env:
           NAME: "${{ needs.changes.outputs.chart_name }}"
           VERSION: "${{ needs.changes.outputs.current_version }}"
