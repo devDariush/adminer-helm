@@ -1,0 +1,37 @@
+name: CI Job
+run-name: ${{ github.actor }} has triggered the CI workflow
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 #v6
+      - name: Helm tool installer
+        uses: Azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 #v5.0.1
+        with:
+          version: '4.2.0'
+      - run: helm lint charts/
+  test:
+    needs: [lint]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Install Helm
+        uses: Azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 #v5.0.1
+        with:
+          version: '4.2.0'
+      - name: Install helm-unittest
+        run: helm plugin install --verify=false oci://ghcr.io/helm-unittest/helm-unittest/unittest@sha256:0d833da8404eac789412ba37f71955f842bfaa358e20ed89bc4366fe1f1acad2
+      - name: Install dependencies
+        run: cd charts/ && helm dependency build && cd ..
+      - name: Run tests
+        run: bash test.sh
