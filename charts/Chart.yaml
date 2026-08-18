@@ -10,8 +10,9 @@ keywords:
   - first
   - chart
   - helm
-home: https://github.com/devDariush/adminer-chart
-# sources: []
+home: https://adminer-helm.d5h.io
+sources:
+  - https://github.com/devDariush/adminer-chart
 dependencies:
   - name: adminer-chart
     version: "0.2.0"
