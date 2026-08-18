@@ -62,8 +62,8 @@ jobs:
           fi
 
   release:
-    needs: [test, changes]
-    if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
+    needs: [test]
+    #if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-24.04
