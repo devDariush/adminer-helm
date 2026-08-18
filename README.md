@@ -14,6 +14,16 @@ A Helm chart that deploys [Adminer](https://www.adminer.org/) alongside a Postgr
 
 ## Install
 
+Add the chart repo once, then install from it:
+
+```bash
+helm repo add adminer-helm https://adminer-helm.d5h.io
+helm repo update
+helm install my-release adminer-helm/adminer-helm
+```
+
+Alternatively, install straight from a local checkout of this repo:
+
 ```bash
 helm install my-release ./charts
 ```
