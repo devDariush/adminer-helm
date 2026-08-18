@@ -68,8 +68,8 @@ jobs:
           echo "name=$name" >> "$GITHUB_OUTPUT"
 
   release-repo:
-    needs: [test]
-    #if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
+    needs: [test, changes]
+    if: github.ref == 'refs/heads/main' && needs.changes.outputs.version_changed == 'true'
     permissions:
       contents: write
     runs-on: ubuntu-24.04
